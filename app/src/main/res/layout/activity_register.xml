@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".app.RegisterActivity">
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    <EditText
+        android:id="@+id/username"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:ems="10"
+        android:textColor="@color/blue_A700"
+        android:inputType="text"
+        android:hint="Username"/>
+
+    <com.google.android.material.textfield.TextInputLayout
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/etPasswordLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:passwordToggleEnabled="true"
+        android:layout_below="@+id/username"
+        android:layout_marginLeft="75dp">
+
+        <EditText
+            android:id="@+id/password"
+            android:layout_width="210dp"
+            android:layout_height="wrap_content"
+            android:hint="Password"
+            android:textColor="@color/blue_A700"
+            android:inputType="textPassword"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/etConfirmPasswordLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:passwordToggleEnabled="true"
+        android:layout_below="@+id/etPasswordLayout"
+        android:layout_marginLeft="75dp">
+
+        <EditText
+            android:id="@+id/confirm_password"
+            android:layout_width="210dp"
+            android:layout_height="wrap_content"
+            android:hint="Confirm Password"
+            android:textColor="@color/blue_A700"
+            android:inputType="textPassword"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+
+<!--    <EditText-->
+<!--        android:id="@+id/password"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_centerHorizontal="true"-->
+<!--        android:layout_marginTop="20dp"-->
+<!--        android:ems="10"-->
+<!--        android:layout_below="@+id/username"-->
+<!--        android:inputType="textPassword"-->
+<!--        android:hint="Password"/>-->
+
+<!--    <EditText-->
+<!--        android:id="@+id/confirm_password"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_centerHorizontal="true"-->
+<!--        android:layout_marginTop="20dp"-->
+<!--        android:ems="10"-->
+<!--        android:layout_below="@+id/etPasswordLayout"-->
+<!--        android:inputType="textPassword"-->
+<!--        android:hint="Confirm Password"/>-->
+
+    <EditText
+        android:id="@+id/email"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:ems="10"
+        android:layout_below="@+id/etConfirmPasswordLayout"
+        android:inputType="text"
+        android:textColor="@color/blue_A700"
+        android:hint="Email"/>
+
+    <EditText
+        android:id="@+id/mobile_no"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:ems="10"
+        android:layout_below="@+id/email"
+        android:inputType="number"
+        android:textColor="@color/blue_A700"
+        android:hint="Phone"/>
+
+    <Button
+        android:id="@+id/btn_register"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:ems="15"
+        android:text="Register"
+        android:textColor="@color/green_A700"
+        android:layout_below="@+id/mobile_no" />
+
+    <Button
+        android:id="@+id/btn_login"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="120dp"
+        android:ems="15"
+        android:text="Login"
+        android:textColor="@color/dark_purple_A700"
+        android:layout_below="@+id/btn_register"/>
+
+    </RelativeLayout>
+
+</ScrollView>

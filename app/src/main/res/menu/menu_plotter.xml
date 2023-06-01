@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.example.cps_lab.app.ControllerActivity">
+    <item
+        android:id="@+id/action_help"
+        android:icon="@drawable/ic_info_outline_white_24dp"
+        android:title="@string/common_help_action"
+        app:showAsAction="always" />
+
+    <group android:id="@+id/uartControls">
+        <item
+            android:id="@+id/action_export"
+            android:title="@string/uart_settings_export_title"
+            app:showAsAction="never">
+
+            <menu>
+                <group
+                    android:id="@+id/exportMode">
+                    <item
+                        android:id="@+id/action_csv"
+                        android:title="@string/plotter_csv"
+                        app:showAsAction="never" />
+                </group>
+            </menu>
+        </item>
+
+    </group>
+</menu>

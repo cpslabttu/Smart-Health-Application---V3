@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".app.InstructionsActivity">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Instructions:"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/dark_purple_A700"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="1. Click Device Connect and then connect your device."
+            android:textSize="16sp"
+            android:paddingTop="30dp"
+            android:textColor="@color/green_A700"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="2. Then you can see the incoming data if you click the DATA."
+            android:textSize="16sp"
+            android:textColor="@color/green_A700"
+            android:paddingTop="20dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="3. From here, you can save the data in csv,txt or json format."
+            android:textSize="16sp"
+            android:textColor="@color/green_A700"
+            android:paddingTop="20dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="4. If you click PLOTTER, then you can see the plotted ECG Signal where you can stop the Autoscroll as well as perform Zoom In and Out of the ECG Signal."
+            android:textSize="16sp"
+            android:textColor="@color/green_A700"
+            android:paddingTop="20dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="5. Also, you can see the Heart Rate and Average Heart Rate in Real time and save them in a CSV by clicking Three Dots -> Export -> CSV."
+            android:textSize="16sp"
+            android:textColor="@color/green_A700"
+            android:paddingTop="20dp"/>
+
+    </LinearLayout>
+
+</ScrollView>

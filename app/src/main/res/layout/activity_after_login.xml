@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:background="@color/white"
+    tools:context=".app.BeforeMainActivity">
+
+
+    <Button
+        android:id="@+id/device_connect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="150dp"
+        android:hint="Device Connect"
+        android:padding="10dp"
+        android:background="@drawable/rounded_btn"
+        android:textColorHint="#fff"
+        android:textSize="20sp"
+        android:minWidth="150dp"
+        android:textStyle="bold|italic"
+        />
+
+<!--    <Button-->
+<!--        android:id="@+id/diagonistic"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_centerHorizontal="true"-->
+<!--        android:layout_marginTop="200dp"-->
+<!--        android:background="@drawable/rounded_btn_dark"-->
+<!--        android:hint="Diagonistic"-->
+<!--        android:padding="10dp"-->
+<!--        android:textColorHint="#fff"-->
+<!--        android:textSize="20sp"-->
+<!--        android:minWidth="150dp"-->
+<!--        android:textStyle="bold|italic" />-->
+
+    <Button
+        android:id="@+id/instructions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="250dp"
+        android:background="@drawable/rounded_btn_purple"
+        android:hint="Instructions"
+        android:padding="10dp"
+        android:textColorHint="#fff"
+        android:textSize="20sp"
+        android:minWidth="150dp"
+        android:textStyle="bold|italic" />
+
+
+    <Button
+        android:id="@+id/btn_logout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:ems="10"
+        android:background="@color/green_100"
+        android:textSize="20sp"
+        android:text="Log Out"/>
+
+</RelativeLayout>
