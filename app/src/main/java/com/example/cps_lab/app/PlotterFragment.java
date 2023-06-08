@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -27,6 +28,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -40,8 +42,10 @@ import com.example.cps_lab.ble.central.UartDataManager;
 import com.example.cps_lab.ml.AnnClassifier;
 import com.example.cps_lab.ml.AnnMulticlass;
 import com.example.cps_lab.ml.ArrhythmiaOnEcgClassification;
+import com.example.cps_lab.ml.CnnMulticlass;
 import com.example.cps_lab.style.UartStyle;
 import com.example.cps_lab.utils.DialogUtils;
+import com.example.cps_lab.utils.ZipUtils;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
@@ -205,11 +209,38 @@ public class PlotterFragment extends ConnectedPeripheralFragment implements Uart
                 startActivity(intent);
             }
         });
-
+        String emailText = "Sending ECG data.";
+        String emailRecipient = "ucchwas09@gmail.com";
+        String emailSubject = "Data Export";
         exitButton = view.findViewById(R.id.exit_button);
         exitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                try {
+                    ZipUtils.zipFolder(folderPath, zipFilePath);
+                    // The folder is successfully zipped.
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    // An error occurred while zipping the folder.
+                }
+
+                if (emailText != null && !emailText.isEmpty()) {
+                    Intent sendIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
+                    sendIntent.setType("text/plain");
+                    sendIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{emailRecipient});
+                    sendIntent.putExtra(Intent.EXTRA_SUBJECT, emailSubject);
+                    sendIntent.putExtra(Intent.EXTRA_TEXT, emailText);
+
+                    ArrayList<Uri> uris = new ArrayList<>();
+                    File zipFile = new File(zipFilePath);
+                    Uri zipUri = FileProvider.getUriForFile(getContext(), getContext().getPackageName() + ".provider", zipFile);
+                    uris.add(zipUri);
+
+                    sendIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
+
+                    startActivity(sendIntent);
+                }
+
                 getActivity().finishAffinity();
                 int pid = android.os.Process.myPid();
                 android.os.Process.killProcess(pid);
@@ -545,6 +576,7 @@ public class PlotterFragment extends ConnectedPeripheralFragment implements Uart
     private String timestamp = new SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault()).format(new Date());
 
     private String folderPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/DataFrom " + timestamp;
+    private String zipFilePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/DataFrom " + timestamp + ".zip";
     private String csvforECG = null;
     private String csvforHeartRate = null;
     private CSVWriter writerECG = null;
@@ -577,8 +609,13 @@ public class PlotterFragment extends ConnectedPeripheralFragment implements Uart
             String[] dataStrings= new String[strings.length/2];
             int l= 0;
             for(int j=0;j<strings.length/2;j++){
-                dataStrings[j]= strings[l+1].charAt(1) + strings[l];
-                dataStrings[j]= String.valueOf(Integer.parseInt(dataStrings[j],16));
+                if(strings[l+1].equals("FF")){
+                    dataStrings[j] = String.valueOf(subData[l]);
+                }
+                else {
+                    dataStrings[j] = strings[l + 1].charAt(1) + strings[l];
+                    dataStrings[j] = String.valueOf(Integer.parseInt(dataStrings[j], 16));
+                }
                 l+=2;
             }
 
@@ -699,7 +736,7 @@ public class PlotterFragment extends ConnectedPeripheralFragment implements Uart
 
                         if (predictClass[algoCounter] == 0) {
                             try {
-                                AnnMulticlass model = AnnMulticlass.newInstance(context);
+                                CnnMulticlass model = CnnMulticlass.newInstance(context);
 
                                 // Creates inputs for reference.
                                 TensorBuffer inputFeature0 = TensorBuffer.createFixedSize(new int[]{1, 186}, DataType.FLOAT32);
@@ -729,7 +766,7 @@ public class PlotterFragment extends ConnectedPeripheralFragment implements Uart
                                 inputFeature0.loadBuffer(byteBuffer);
 
                                 // Runs model inference and gets result.
-                                AnnMulticlass.Outputs outputs = model.process(inputFeature0);
+                                CnnMulticlass.Outputs outputs = model.process(inputFeature0);
                                 TensorBuffer outputFeature0 = outputs.getOutputFeature0AsTensorBuffer();
 
                                 // Get predicted class
