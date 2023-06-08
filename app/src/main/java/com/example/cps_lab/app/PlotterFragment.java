@@ -236,7 +236,11 @@ public class PlotterFragment extends ConnectedPeripheralFragment implements Uart
                     sendIntent.setType("text/plain");
                     sendIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{emailRecipient});
                     sendIntent.putExtra(Intent.EXTRA_SUBJECT, emailSubject);
-                    sendIntent.putExtra(Intent.EXTRA_TEXT, attachText);
+
+                    // Create an ArrayList<CharSequence> and add the attachText as a single item
+                    ArrayList<CharSequence> textList = new ArrayList<>();
+                    textList.add(attachText);
+                    sendIntent.putExtra(Intent.EXTRA_TEXT, textList);
 
                     ArrayList<Uri> uris = new ArrayList<>();
                     File zipFile = new File(zipFilePath);
@@ -655,193 +659,195 @@ public class PlotterFragment extends ConnectedPeripheralFragment implements Uart
                 }
             }
 
-            synchronized (heatRateData) {
-                try {
-                    writerECG = new CSVWriter(new FileWriter(csvforECG, true));
-                    File ecgFile = new File(csvforECG);
-                    if(ecgFile.length() == 0){
-                        writerECG.writeAll(Collections.singleton(new String[]{"ECG Raw Data"}));
-                    }
+            if(folder.exists()) {
+                synchronized (heatRateData) {
+                    try {
+                        writerECG = new CSVWriter(new FileWriter(csvforECG, true));
+                        File ecgFile = new File(csvforECG);
+                        if (ecgFile.length() == 0) {
+                            writerECG.writeAll(Collections.singleton(new String[]{"ECG Raw Data"}));
+                        }
 
-                    writerHeartRate = new CSVWriter(new FileWriter(csvforHeartRate, true));
-                    File heartRateFile = new File(csvforHeartRate);
-                    if(heartRateFile.length() == 0){
-                        writerHeartRate.writeAll(Collections.singleton(new String[]{"Real Time HR", "Avg. HR"}));
-                    }
+                        writerHeartRate = new CSVWriter(new FileWriter(csvforHeartRate, true));
+                        File heartRateFile = new File(csvforHeartRate);
+                        if (heartRateFile.length() == 0) {
+                            writerHeartRate.writeAll(Collections.singleton(new String[]{"Real Time HR", "Avg. HR"}));
+                        }
 
 
-                    if (counter % 10 == 0) {
-                        List<Integer> rPeaks = RPeakDetector.detectRPeaks(timerData);
-                        double heartRate = calculateHeartRate(rPeaks, 10);
-                        if (heartRate > 60 && heartRate < 140) {
-                            heartRateEditText.setTextIsSelectable(true);
-                            heartRateEditText.setMovementMethod(LinkMovementMethod.getInstance());
-                            heartRateEditText.setText(String.valueOf((int) heartRate));
+                        if (counter % 10 == 0) {
+                            List<Integer> rPeaks = RPeakDetector.detectRPeaks(timerData);
+                            double heartRate = calculateHeartRate(rPeaks, 10);
+                            if (heartRate > 60 && heartRate < 140) {
+                                heartRateEditText.setTextIsSelectable(true);
+                                heartRateEditText.setMovementMethod(LinkMovementMethod.getInstance());
+                                heartRateEditText.setText(String.valueOf((int) heartRate));
 
-                            heartRates.add(heartRate);
-                            //System.out.println("Size " + heartRates.size());
-                            if (heartRates.size() <= 30) {
-                                writerHeartRate.writeAll(Collections.singleton(new String[]{String.valueOf((int) heartRate), "0"}));
-                            } else {
-                                for (int hrC = 0; hrC < 30; hrC++) {
-                                    sumofAvgHeartBeatRate += heartRates.get(hrC);
+                                heartRates.add(heartRate);
+                                //System.out.println("Size " + heartRates.size());
+                                if (heartRates.size() <= 30) {
+                                    writerHeartRate.writeAll(Collections.singleton(new String[]{String.valueOf((int) heartRate), "0"}));
+                                } else {
+                                    for (int hrC = 0; hrC < 30; hrC++) {
+                                        sumofAvgHeartBeatRate += heartRates.get(hrC);
+                                    }
+                                    //System.out.println("HR C " + avgHeartBeatRate);
+                                    avgHeartBeatRate = sumofAvgHeartBeatRate / 30;
+                                    avgHeartRateEditText.setText(String.valueOf((int) avgHeartBeatRate));
+                                    writerHeartRate.writeAll(Collections.singleton(new String[]{String.valueOf((int) heartRate), String.valueOf((int) avgHeartBeatRate)})); // data is adding to csv
+                                    heartRates = shiftLeft(heartRates);
+                                    sumofAvgHeartBeatRate = 0;
                                 }
-                                //System.out.println("HR C " + avgHeartBeatRate);
-                                avgHeartBeatRate = sumofAvgHeartBeatRate / 30;
-                                avgHeartRateEditText.setText(String.valueOf((int) avgHeartBeatRate));
-                                writerHeartRate.writeAll(Collections.singleton(new String[]{String.valueOf((int) heartRate), String.valueOf((int) avgHeartBeatRate)})); // data is adding to csv
-                                heartRates = shiftLeft(heartRates);
-                                sumofAvgHeartBeatRate = 0;
-                            }
-                        }
-
-
-                        /* Pre Trained Machine Learning Model */
-                        Context context = getContext();
-
-
-                        try {
-                            AnnClassifier model = AnnClassifier.newInstance(context);
-
-                            // Creates inputs for reference.
-                            TensorBuffer inputFeature0 = TensorBuffer.createFixedSize(new int[]{1, 159}, DataType.FLOAT32);
-
-                            // Pack ECG data into a ByteBuffer
-                            ByteBuffer byteBuffer = ByteBuffer.allocate(159 * 4);
-                            byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
-                            for (Double sample : timerData) {
-                                short sampleShort = (short) (sample * Short.MAX_VALUE);
-                                if (byteBuffer.remaining() == 0)
-                                    break;
-                                byteBuffer.putShort(sampleShort);
                             }
 
-                            inputFeature0.loadBuffer(byteBuffer);
 
-                            // Runs model inference and gets result.
-                            AnnClassifier.Outputs outputs = model.process(inputFeature0);
-                            TensorBuffer outputFeature0 = outputs.getOutputFeature0AsTensorBuffer();
+                            /* Pre Trained Machine Learning Model */
+                            Context context = getContext();
 
-                            // Get predicted class
-                            float[] scores = outputFeature0.getFloatArray();
-                            predictClass[algoCounter] = getMaxIndexforANN(scores);
 
-                            // Releases model resources if no longer used.
-                            model.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-
-                        if (predictClass[algoCounter] == 0) {
                             try {
-                                CnnMulticlass model = CnnMulticlass.newInstance(context);
+                                AnnClassifier model = AnnClassifier.newInstance(context);
 
                                 // Creates inputs for reference.
-                                TensorBuffer inputFeature0 = TensorBuffer.createFixedSize(new int[]{1, 186}, DataType.FLOAT32);
-
-                                // Find the minimum and maximum values of the ECG data
-                                double ecgMin = Double.MAX_VALUE;
-                                double ecgMax = Double.MIN_VALUE;
-                                for (Double sample : timerData) {
-                                    if (sample < ecgMin) {
-                                        ecgMin = sample;
-                                    }
-                                    if (sample > ecgMax) {
-                                        ecgMax = sample;
-                                    }
-                                }
+                                TensorBuffer inputFeature0 = TensorBuffer.createFixedSize(new int[]{1, 159}, DataType.FLOAT32);
 
                                 // Pack ECG data into a ByteBuffer
-                                ByteBuffer byteBuffer = ByteBuffer.allocate(186 * 4);
+                                ByteBuffer byteBuffer = ByteBuffer.allocate(159 * 4);
                                 byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
                                 for (Double sample : timerData) {
-                                    float samplefloat = (float) ((sample - ecgMin) / (ecgMax - ecgMin));
+                                    short sampleShort = (short) (sample * Short.MAX_VALUE);
                                     if (byteBuffer.remaining() == 0)
                                         break;
-                                    byteBuffer.putFloat(samplefloat);
+                                    byteBuffer.putShort(sampleShort);
                                 }
 
                                 inputFeature0.loadBuffer(byteBuffer);
 
                                 // Runs model inference and gets result.
-                                CnnMulticlass.Outputs outputs = model.process(inputFeature0);
+                                AnnClassifier.Outputs outputs = model.process(inputFeature0);
                                 TensorBuffer outputFeature0 = outputs.getOutputFeature0AsTensorBuffer();
 
                                 // Get predicted class
                                 float[] scores = outputFeature0.getFloatArray();
-                                predictClass[algoCounter] = getMaxIndex(scores);
-
-                                if (algoCounter == 9) {
-                                    int[] classes = new int[5];
-
-                                    for (int algoC = 0; algoC <= algoCounter; algoC++) {
-                                        int pClass = (int) predictClass[algoC];
-                                        classes[pClass]++;
-                                    }
-                                    predictforArrhythmia = getMaxIndexforInt(classes);
-                                    for (int cls = 0; cls < classes.length; cls++) {
-                                        System.out.println("Classes " + cls + " " + classes[cls] + " " + predictforArrhythmia + " " + getMaxIndexforInt(classes));
-                                    }
-                                }
+                                predictClass[algoCounter] = getMaxIndexforANN(scores);
 
                                 // Releases model resources if no longer used.
                                 model.close();
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
-                            System.out.println("PredictClass " + algoCounter + " " + predictforArrhythmia);
-                            if (predictforArrhythmia == 2 && algoCounter == 9) {
-                                toggleState(false, false, true, "Arrhythmic");
-                            } else if (predictforArrhythmia == 0 && algoCounter == 9) {
-                                toggleState(true, false, false, "NORMAL");
-                            } else if (predictforArrhythmia == 1 && algoCounter == 9) {
-                                toggleState(false, true, false, "SV");
-                            } else if (predictforArrhythmia == 3 && algoCounter == 9) {
-                                toggleState(false, true, false, "Fusion");
-                            } else if (predictforArrhythmia == 4 && algoCounter == 9) {
-                                toggleState(false, true, false, "Abnormal");
-                            }
-                        } else {
-                            toggleState(false, true, false, "NOISY");
-                        }
 
-                        timerData = new ArrayList<>();
-                        algoCounter++;
-                        if (algoCounter > 9) {
-                            algoCounter = 0;
-                        }
-                    }
-
-                    for (Double filteredData : filteredDataList) {
-                        String lineString = Double.toString(filteredData);
-                        final String[] valuesStrings = lineString.split("[,; \t]");
-                        int j = 0;
-                        for (String valueString : valuesStrings) {
-                            boolean isValid = true;
-                            float value = 0;
-                            if (valueString != null) {
+                            if (predictClass[algoCounter] == 0) {
                                 try {
-                                    value = Float.parseFloat(valueString);
-                                } catch (NumberFormatException ignored) {
-                                    isValid = false;
+                                    CnnMulticlass model = CnnMulticlass.newInstance(context);
+
+                                    // Creates inputs for reference.
+                                    TensorBuffer inputFeature0 = TensorBuffer.createFixedSize(new int[]{1, 186}, DataType.FLOAT32);
+
+                                    // Find the minimum and maximum values of the ECG data
+                                    double ecgMin = Double.MAX_VALUE;
+                                    double ecgMax = Double.MIN_VALUE;
+                                    for (Double sample : timerData) {
+                                        if (sample < ecgMin) {
+                                            ecgMin = sample;
+                                        }
+                                        if (sample > ecgMax) {
+                                            ecgMax = sample;
+                                        }
+                                    }
+
+                                    // Pack ECG data into a ByteBuffer
+                                    ByteBuffer byteBuffer = ByteBuffer.allocate(186 * 4);
+                                    byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
+                                    for (Double sample : timerData) {
+                                        float samplefloat = (float) ((sample - ecgMin) / (ecgMax - ecgMin));
+                                        if (byteBuffer.remaining() == 0)
+                                            break;
+                                        byteBuffer.putFloat(samplefloat);
+                                    }
+
+                                    inputFeature0.loadBuffer(byteBuffer);
+
+                                    // Runs model inference and gets result.
+                                    CnnMulticlass.Outputs outputs = model.process(inputFeature0);
+                                    TensorBuffer outputFeature0 = outputs.getOutputFeature0AsTensorBuffer();
+
+                                    // Get predicted class
+                                    float[] scores = outputFeature0.getFloatArray();
+                                    predictClass[algoCounter] = getMaxIndex(scores);
+
+                                    if (algoCounter == 9) {
+                                        int[] classes = new int[5];
+
+                                        for (int algoC = 0; algoC <= algoCounter; algoC++) {
+                                            int pClass = (int) predictClass[algoC];
+                                            classes[pClass]++;
+                                        }
+                                        predictforArrhythmia = getMaxIndexforInt(classes);
+                                        for (int cls = 0; cls < classes.length; cls++) {
+                                            System.out.println("Classes " + cls + " " + classes[cls] + " " + predictforArrhythmia + " " + getMaxIndexforInt(classes));
+                                        }
+                                    }
+
+                                    // Releases model resources if no longer used.
+                                    model.close();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                System.out.println("PredictClass " + algoCounter + " " + predictforArrhythmia);
+                                if (predictforArrhythmia == 2 && algoCounter == 9) {
+                                    toggleState(false, false, true, "Arrhythmic");
+                                } else if (predictforArrhythmia == 0 && algoCounter == 9) {
+                                    toggleState(true, false, false, "NORMAL");
+                                } else if (predictforArrhythmia == 1 && algoCounter == 9) {
+                                    toggleState(false, true, false, "SV");
+                                } else if (predictforArrhythmia == 3 && algoCounter == 9) {
+                                    toggleState(false, true, false, "Fusion");
+                                } else if (predictforArrhythmia == 4 && algoCounter == 9) {
+                                    toggleState(false, true, false, "Abnormal");
                                 }
                             } else {
-                                isValid = false;
+                                toggleState(false, true, false, "NOISY");
                             }
 
-                            if (isValid && peripheralIdentifier != null) {
-                                addEntry(peripheralIdentifier, j, value, currentTimestamp);
-                                j++;
+                            timerData = new ArrayList<>();
+                            algoCounter++;
+                            if (algoCounter > 9) {
+                                algoCounter = 0;
                             }
                         }
 
-                        writerECG.writeAll(Collections.singleton(new String[]{Double.toString(filteredData)})); // data is adding to csv
-                        mMainHandler.post(this::notifyDataSetChanged);
+                        for (Double filteredData : filteredDataList) {
+                            String lineString = Double.toString(filteredData);
+                            final String[] valuesStrings = lineString.split("[,; \t]");
+                            int j = 0;
+                            for (String valueString : valuesStrings) {
+                                boolean isValid = true;
+                                float value = 0;
+                                if (valueString != null) {
+                                    try {
+                                        value = Float.parseFloat(valueString);
+                                    } catch (NumberFormatException ignored) {
+                                        isValid = false;
+                                    }
+                                } else {
+                                    isValid = false;
+                                }
+
+                                if (isValid && peripheralIdentifier != null) {
+                                    addEntry(peripheralIdentifier, j, value, currentTimestamp);
+                                    j++;
+                                }
+                            }
+
+                            writerECG.writeAll(Collections.singleton(new String[]{Double.toString(filteredData)})); // data is adding to csv
+                            mMainHandler.post(this::notifyDataSetChanged);
+                        }
+                        writerECG.close();
+                        writerHeartRate.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-                    writerECG.close();
-                    writerHeartRate.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
             }
         }
