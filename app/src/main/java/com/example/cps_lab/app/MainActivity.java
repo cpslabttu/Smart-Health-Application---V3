@@ -19,6 +19,8 @@ import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -51,6 +53,8 @@ public class MainActivity extends AppCompatActivity implements ScannerFragment.S
 
     // Permission requests
     private final static int PERMISSION_REQUEST_FINE_LOCATION = 1;
+    private static final int REQUEST_STORAGE_PERMISSION = 2;
+
 
     // Activity request codes (used for onActivityResult)
     private static final int kActivityRequestCode_EnableBluetooth = 1;
@@ -248,6 +252,20 @@ public class MainActivity extends AppCompatActivity implements ScannerFragment.S
                         .show();
             }
         }
+        if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {
+
+            // Permissions have not been granted, request them
+            ActivityCompat.requestPermissions(MainActivity.this,
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    REQUEST_STORAGE_PERMISSION);
+        } else {
+            // Permissions have already been granted, proceed with storage access
+            // ...
+        }
+
         return permissionGranted;
     }
 
@@ -273,6 +291,19 @@ public class MainActivity extends AppCompatActivity implements ScannerFragment.S
                     builder.show();
                 }
                 break;
+            }
+            case REQUEST_STORAGE_PERMISSION: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.d(TAG, "Storage permission granted");
+                } else {
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setTitle(R.string.storage_permission_not_granted_title);
+                    builder.setMessage(R.string.storage_permission_not_granted_text);
+                    builder.setPositiveButton(android.R.string.ok, null);
+                    builder.setOnDismissListener(dialog -> {
+                    });
+                    builder.show();
+                }
             }
             default:
                 break;

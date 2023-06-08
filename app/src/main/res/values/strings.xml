@@ -20,6 +20,9 @@
     <string name="bluetooth_connecting_error">Error connecting to peripheral</string>
     <string name="bluetooth_advertising_start_error">Error starting advertising</string>
 
+    <string name="storage_permission_not_granted_title">Storage permission not granted</string>
+    <string name="storage_permission_not_granted_text">Since location access has not been granted, the app will not be able to store</string>
+
 
     <!-- Main Tab-Bar -->
     <string name="main_tabbar_singlemode">Select Device</string>

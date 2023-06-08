@@ -209,7 +209,7 @@ public class PlotterFragment extends ConnectedPeripheralFragment implements Uart
                 startActivity(intent);
             }
         });
-        String emailText = "Sending ECG data.";
+        String attachText = "ECG data";
         String emailRecipient = "ucchwas09@gmail.com";
         String emailSubject = "Data Export";
         exitButton = view.findViewById(R.id.exit_button);
@@ -218,18 +218,25 @@ public class PlotterFragment extends ConnectedPeripheralFragment implements Uart
             public void onClick(View view) {
                 try {
                     ZipUtils.zipFolder(folderPath, zipFilePath);
-                    // The folder is successfully zipped.
+                    File folderToDelete = new File(folderPath);
+                    if (folderToDelete.exists() && folderToDelete.isDirectory()) {
+                        deleteRecursive(folderToDelete);
+                    }
+                    else{
+                        System.out.println("Couldn't Delete");
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                     // An error occurred while zipping the folder.
                 }
 
-                if (emailText != null && !emailText.isEmpty()) {
-                    Intent sendIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
+
+                if (attachText != null && !attachText.isEmpty()) {
+                    Intent sendIntent = new Intent((Intent.ACTION_SEND_MULTIPLE));
                     sendIntent.setType("text/plain");
                     sendIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{emailRecipient});
                     sendIntent.putExtra(Intent.EXTRA_SUBJECT, emailSubject);
-                    sendIntent.putExtra(Intent.EXTRA_TEXT, emailText);
+                    sendIntent.putExtra(Intent.EXTRA_TEXT, attachText);
 
                     ArrayList<Uri> uris = new ArrayList<>();
                     File zipFile = new File(zipFilePath);
@@ -240,6 +247,14 @@ public class PlotterFragment extends ConnectedPeripheralFragment implements Uart
 
                     startActivity(sendIntent);
                 }
+                else {
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                    builder.setMessage(R.string.uart_export_nodata);
+                    builder.setPositiveButton(android.R.string.ok, null);
+                    builder.show();
+                }
+
+
 
                 getActivity().finishAffinity();
                 int pid = android.os.Process.myPid();
@@ -405,24 +420,6 @@ public class PlotterFragment extends ConnectedPeripheralFragment implements Uart
         }
     }
 
-    // endregion
-    /*
-    public void toggleState(boolean patientState) {
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (patientState) {
-                    patientType.setText("NORMAL");
-                    patientType.setBackgroundResource(R.drawable.rounded_btn_green);
-                } else {
-                    patientType.setText("ABNORMAL");
-                    patientType.setBackgroundResource(R.drawable.rounded_btn_red);
-                }
-            }
-        });
-    }
-    */
-
     public void toggleState(boolean isNormal, boolean isNoise, boolean isArrhythmic, String pType) {
         getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -581,6 +578,7 @@ public class PlotterFragment extends ConnectedPeripheralFragment implements Uart
     private String csvforHeartRate = null;
     private CSVWriter writerECG = null;
     private CSVWriter writerHeartRate = null;
+
 
     @Override
     public void onUartRx(@NonNull byte[] data, @Nullable String peripheralIdentifier) {
@@ -1020,6 +1018,20 @@ public class PlotterFragment extends ConnectedPeripheralFragment implements Uart
         list.remove(list.size()-1);
         return list;
     }
+
+    private void deleteRecursive(File fileOrDirectory) {
+        if (fileOrDirectory.isDirectory()) {
+            File[] children = fileOrDirectory.listFiles();
+            if (children != null) {
+                for (File child : children) {
+                    deleteRecursive(child);
+                }
+            }
+        }
+        fileOrDirectory.delete();
+    }
+
+
 
 
     // endregion
