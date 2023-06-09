@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.bluetooth.BluetoothGatt;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.net.Uri;
@@ -116,6 +117,9 @@ public class PlotterFragment extends ConnectedPeripheralFragment implements Uart
 
     private CopyOnWriteArrayList<String[]> heatRateData = new CopyOnWriteArrayList<>();
 
+    private String patientInfotxt = null;
+    private FileWriter writerPatientData = null;
+
     // region Fragment Lifecycle
     public static PlotterFragment newInstance(@Nullable String singlePeripheralIdentifier) {
         PlotterFragment fragment = new PlotterFragment();
@@ -209,6 +213,13 @@ public class PlotterFragment extends ConnectedPeripheralFragment implements Uart
                 startActivity(intent);
             }
         });
+
+        // Get the reference to SharedPreferences
+        SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("Patient", Context.MODE_PRIVATE);
+        String patientInfo = sharedPreferences.getString("patientInfo", "");
+
+        System.out.println("PATTTTTTTTTTTTTTTT " + patientInfo);
+
         String attachText = "ECG data";
         String emailRecipient = "ucchwas09@gmail.com";
         String emailSubject = "Data Export";
@@ -217,14 +228,12 @@ public class PlotterFragment extends ConnectedPeripheralFragment implements Uart
             @Override
             public void onClick(View view) {
                 try {
+                    patientInfotxt = folderPath + "/PatientInfo" + ".txt";
+                    writerPatientData = new FileWriter(patientInfotxt);
+                    writerPatientData.write(patientInfo);
+                    writerPatientData.close();
+
                     ZipUtils.zipFolder(folderPath, zipFilePath);
-                    File folderToDelete = new File(folderPath);
-                    if (folderToDelete.exists() && folderToDelete.isDirectory()) {
-                        deleteRecursive(folderToDelete);
-                    }
-                    else{
-                        System.out.println("Couldn't Delete");
-                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                     // An error occurred while zipping the folder.
@@ -258,7 +267,10 @@ public class PlotterFragment extends ConnectedPeripheralFragment implements Uart
                     builder.show();
                 }
 
-
+                File folderToDelete = new File(folderPath);
+                if (folderToDelete.exists() && folderToDelete.isDirectory()) {
+                    deleteRecursive(folderToDelete);
+                }
 
                 getActivity().finishAffinity();
                 int pid = android.os.Process.myPid();
@@ -584,6 +596,8 @@ public class PlotterFragment extends ConnectedPeripheralFragment implements Uart
     private CSVWriter writerHeartRate = null;
 
 
+
+
     @Override
     public void onUartRx(@NonNull byte[] data, @Nullable String peripheralIdentifier) {
 
@@ -673,7 +687,6 @@ public class PlotterFragment extends ConnectedPeripheralFragment implements Uart
                         if (heartRateFile.length() == 0) {
                             writerHeartRate.writeAll(Collections.singleton(new String[]{"Real Time HR", "Avg. HR"}));
                         }
-
 
                         if (counter % 10 == 0) {
                             List<Integer> rPeaks = RPeakDetector.detectRPeaks(timerData);

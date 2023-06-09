@@ -1,67 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".app.RegisterActivity">
+    android:orientation="vertical"
+    android:padding="16dp">
 
-
-    <RelativeLayout
+    <TextView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:text="Patient Information"
+        android:textSize="18sp"
+        android:textStyle="bold" />
 
-        <EditText
-            android:id="@+id/zipcode"
+    <EditText
+        android:id="@+id/editTextZipCode"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Zip Code" />
+
+    <EditText
+        android:id="@+id/editTextAge"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Age" />
+
+    <RadioGroup
+        android:id="@+id/radioGroupGender"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/radioButtonMale"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="20dp"
-            android:ems="10"
-            android:textColor="@color/blue_A700"
-            android:inputType="text"
-            android:hint="Zip Code"/>
+            android:text="Male" />
 
-
-
-
-        <EditText
-            android:id="@+id/age"
+        <RadioButton
+            android:id="@+id/radioButtonFemale"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="20dp"
-            android:ems="10"
-            android:layout_below="@+id/zipcode"
-            android:inputType="text"
-            android:textColor="@color/blue_A700"
-            android:hint="Age"/>
+            android:text="Female" />
 
-        <EditText
-            android:id="@+id/gender"
+        <RadioButton
+            android:id="@+id/radioButtonPreferNotToSay"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="20dp"
-            android:ems="10"
-            android:layout_below="@+id/age"
-            android:inputType="number"
-            android:textColor="@color/blue_A700"
-            android:hint="Male/Female"/>
+            android:text="Prefer not to say" />
 
-        <Button
-            android:id="@+id/btn_start"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="20dp"
-            android:ems="15"
-            android:text="Start"
-            android:textColor="@color/green_A700"
-            android:layout_below="@+id/gender" />
+    </RadioGroup>
 
+    <Button
+        android:id="@+id/buttonStart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Connect Device" />
 
-    </RelativeLayout>
-
-</ScrollView>
+</LinearLayout>

@@ -1,50 +1,71 @@
 package com.example.cps_lab.app;
 
-import androidx.appcompat.app.AppCompatActivity;
-
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.cps_lab.R;
 
 public class PatientInfoActivity extends AppCompatActivity {
 
-    EditText zipcode, age, gender;
-    Button btn_start;
+    EditText editTextZipCode, editTextAge;
+    RadioGroup radioGroupGender;
+    RadioButton radioButtonMale, radioButtonFemale, radioButtonPreferNotToSay;
+    Button buttonStart;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_patient_info2);
 
-        zipcode = (EditText)findViewById(R.id.zipcode);
-        age = (EditText)findViewById(R.id.age);
-        gender = (EditText)findViewById(R.id.gender);
+        // Initialize views
+        editTextZipCode = findViewById(R.id.editTextZipCode);
+        editTextAge = findViewById(R.id.editTextAge);
+        radioGroupGender = findViewById(R.id.radioGroupGender);
+        radioButtonMale = findViewById(R.id.radioButtonMale);
+        radioButtonFemale = findViewById(R.id.radioButtonFemale);
+        radioButtonPreferNotToSay = findViewById(R.id.radioButtonPreferNotToSay);
+        buttonStart = findViewById(R.id.buttonStart);
 
-        btn_start = (Button)findViewById(R.id.btn_start);
-
-        btn_start.setOnClickListener(new View.OnClickListener() {
+        // Handle button click
+        buttonStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String enteredZipCode = zipcode.getText().toString();
-                String enteredAge = age.getText().toString();
-                String enteredGender = gender.getText().toString();
+                // Get the selected gender
+                String gender = "";
+                int selectedRadioButtonId = radioGroupGender.getCheckedRadioButtonId();
+                if (selectedRadioButtonId == R.id.radioButtonMale) {
+                    gender = "Male";
+                } else if (selectedRadioButtonId == R.id.radioButtonFemale) {
+                    gender = "Female";
+                } else if (selectedRadioButtonId == R.id.radioButtonPreferNotToSay) {
+                    gender = "Prefer not to say";
+                }
 
+                // Get the entered zip code and age
+                String zipCode = editTextZipCode.getText().toString();
+                String age = editTextAge.getText().toString();
+
+                String patientInfoAll = "Zip Code: " + zipCode + "\n"
+                        + "Age: " + age + "\n"
+                        + "Gender: " + gender;
                 // Save the information in shared preferences
-                SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+                SharedPreferences sharedPreferences = getSharedPreferences("Patient", MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putString("zipcode", enteredZipCode);
-                editor.putString("age", enteredAge);
-                editor.putString("gender", enteredGender);
+                editor.putString("patientInfo", patientInfoAll);
                 editor.apply();
 
-                // Start the other fragment or activity
-                // ...
+                Intent intent = new Intent(PatientInfoActivity.this, MainActivity.class);
+                startActivity(intent);
             }
         });
-
     }
 }
