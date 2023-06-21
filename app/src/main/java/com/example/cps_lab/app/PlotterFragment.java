@@ -218,7 +218,7 @@ public class PlotterFragment extends ConnectedPeripheralFragment implements Uart
         SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("Patient", Context.MODE_PRIVATE);
         String patientInfo = sharedPreferences.getString("patientInfo", "");
 
-        System.out.println("PATTTTTTTTTTTTTTTT " + patientInfo);
+        System.out.println("PATIENT" + patientInfo);
 
         String attachText = "ECG data";
         String emailRecipient = "ucchwas09@gmail.com";
