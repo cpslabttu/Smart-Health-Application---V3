@@ -1,5 +1,7 @@
 package com.example.cps_lab.utils;
 
+import android.content.Context;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -9,13 +11,13 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 public class ZipUtils {
-    public static void zipFolder(String folderPath, String zipFilePath) throws IOException {
-        File folder = new File(folderPath);
+    public static void zipFolder(Context context, String folderPath, String zipFilePath) throws IOException {
+        File externalDir = context.getExternalFilesDir(null);
+        File folder = new File(externalDir, folderPath);
         if (!folder.isDirectory()) {
             throw new IllegalArgumentException("Invalid folder path: " + folderPath);
         }
-
-        File zipFile = new File(zipFilePath);
+        File zipFile = new File(externalDir, zipFilePath);
         FileOutputStream fos = new FileOutputStream(zipFile);
         ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(fos));
 

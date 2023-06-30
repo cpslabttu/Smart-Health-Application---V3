@@ -44,6 +44,7 @@ import com.example.cps_lab.ml.AnnClassifier;
 import com.example.cps_lab.ml.AnnMulticlass;
 import com.example.cps_lab.ml.ArrhythmiaOnEcgClassification;
 import com.example.cps_lab.ml.CnnMulticlass;
+import com.example.cps_lab.ml.RnnLstmMulticlass;
 import com.example.cps_lab.style.UartStyle;
 import com.example.cps_lab.utils.DialogUtils;
 import com.example.cps_lab.utils.ZipUtils;
@@ -229,11 +230,13 @@ public class PlotterFragment extends ConnectedPeripheralFragment implements Uart
             public void onClick(View view) {
                 try {
                     patientInfotxt = folderPath + "/PatientInfo" + ".txt";
-                    writerPatientData = new FileWriter(patientInfotxt);
+                    File externalDir = getContext().getExternalFilesDir(null);
+                    File folder = new File(externalDir, folderPath);
+                    writerPatientData = new FileWriter(new File(folder, "PatientInfo.txt"));
                     writerPatientData.write(patientInfo);
                     writerPatientData.close();
 
-                    ZipUtils.zipFolder(folderPath, zipFilePath);
+                    ZipUtils.zipFolder(getContext(), folderPath, zipFilePath);
                 } catch (IOException e) {
                     e.printStackTrace();
                     // An error occurred while zipping the folder.
@@ -252,7 +255,7 @@ public class PlotterFragment extends ConnectedPeripheralFragment implements Uart
                     sendIntent.putExtra(Intent.EXTRA_TEXT, textList);
 
                     ArrayList<Uri> uris = new ArrayList<>();
-                    File zipFile = new File(zipFilePath);
+                    File zipFile = new File(getContext().getExternalFilesDir(null), zipFilePath);
                     Uri zipUri = FileProvider.getUriForFile(getContext(), getContext().getPackageName() + ".provider", zipFile);
                     uris.add(zipUri);
 
@@ -267,7 +270,7 @@ public class PlotterFragment extends ConnectedPeripheralFragment implements Uart
                     builder.show();
                 }
 
-                File folderToDelete = new File(folderPath);
+                File folderToDelete = new File(getContext().getExternalFilesDir(null), folderPath);
                 if (folderToDelete.exists() && folderToDelete.isDirectory()) {
                     deleteRecursive(folderToDelete);
                 }
@@ -457,7 +460,7 @@ public class PlotterFragment extends ConnectedPeripheralFragment implements Uart
                 } else if (isArrhythmic) {
                     patientType.setText(pType);
                     patientType.setBackgroundResource(R.drawable.rounded_btn_red);
-                    arrhythmic.setVisibility(View.VISIBLE);
+                    //arrhythmic.setVisibility(View.VISIBLE);
 
                     // Get the current time
                     Date currentTime = new Date();
@@ -662,31 +665,44 @@ public class PlotterFragment extends ConnectedPeripheralFragment implements Uart
             timerData.addAll(filteredDataList);
 
             // Create folder if it doesn't exist
-            File folder = new File(folderPath);
+            // Obtain the root directory of external storage
+            File externalDir = getContext().getExternalFilesDir(null);
+            File folder = new File(externalDir, folderPath);
             if (!folder.exists()) {
                 if (folder.mkdirs()) {
                     // Folder created successfully
-                    csvforECG = folderPath + "/ECGData" + ".csv";
-                    csvforHeartRate = folderPath + "/HeartRate" + ".csv";
+                    csvforECG = new File(folder, "ECGData.csv").getPath();
+                    csvforHeartRate = new File(folder, "HeartRate.csv").getPath();
                 } else {
                     // Failed to create folder
+                    System.out.println("Can't Create Folder");
                 }
             }
 
             if(folder.exists()) {
                 synchronized (heatRateData) {
                     try {
-                        writerECG = new CSVWriter(new FileWriter(csvforECG, true));
-                        File ecgFile = new File(csvforECG);
-                        if (ecgFile.length() == 0) {
-                            writerECG.writeAll(Collections.singleton(new String[]{"ECG Raw Data"}));
+                        // Create the ECGData.csv file
+                        File fileECG = new File(folder, "ECGData.csv");
+                        if (!fileECG.exists()) {
+                            fileECG.createNewFile();
                         }
+                        writerECG = new CSVWriter(new FileWriter(fileECG, true));
+//                        File ecgFile = new File(csvforECG);
+//                        if (ecgFile.length() == 0) {
+//                            writerECG.writeAll(Collections.singleton(new String[]{"ECG Raw Data"}));
+//                        }
 
-                        writerHeartRate = new CSVWriter(new FileWriter(csvforHeartRate, true));
-                        File heartRateFile = new File(csvforHeartRate);
-                        if (heartRateFile.length() == 0) {
-                            writerHeartRate.writeAll(Collections.singleton(new String[]{"Real Time HR", "Avg. HR"}));
+                        // Create the HeartRate.csv file
+                        File fileHeartRate = new File(folder, "HeartRate.csv");
+                        if (!fileHeartRate.exists()) {
+                            fileHeartRate.createNewFile();
                         }
+                        writerHeartRate = new CSVWriter(new FileWriter(fileHeartRate, true));
+//                        File heartRateFile = new File(csvforHeartRate);
+//                        if (heartRateFile.length() == 0) {
+//                            writerHeartRate.writeAll(Collections.singleton(new String[]{"Real Time HR", "Avg. HR"}));
+//                        }
 
                         if (counter % 10 == 0) {
                             List<Integer> rPeaks = RPeakDetector.detectRPeaks(timerData);
@@ -752,7 +768,7 @@ public class PlotterFragment extends ConnectedPeripheralFragment implements Uart
 
                             if (predictClass[algoCounter] == 0) {
                                 try {
-                                    CnnMulticlass model = CnnMulticlass.newInstance(context);
+                                    RnnLstmMulticlass model = RnnLstmMulticlass.newInstance(context);
 
                                     // Creates inputs for reference.
                                     TensorBuffer inputFeature0 = TensorBuffer.createFixedSize(new int[]{1, 186}, DataType.FLOAT32);
@@ -782,7 +798,7 @@ public class PlotterFragment extends ConnectedPeripheralFragment implements Uart
                                     inputFeature0.loadBuffer(byteBuffer);
 
                                     // Runs model inference and gets result.
-                                    CnnMulticlass.Outputs outputs = model.process(inputFeature0);
+                                    RnnLstmMulticlass.Outputs outputs = model.process(inputFeature0);
                                     TensorBuffer outputFeature0 = outputs.getOutputFeature0AsTensorBuffer();
 
                                     // Get predicted class
