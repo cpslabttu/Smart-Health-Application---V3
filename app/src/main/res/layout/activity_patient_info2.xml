@@ -1,34 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    tools:context=".app.PatientInfoActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+
 
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
         android:text="Patient Information"
         android:textSize="18sp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:background="@color/pink_900"
+        android:layout_marginBottom="20dp"
+        android:layout_gravity="center_horizontal"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp" />
 
     <EditText
         android:id="@+id/editTextZipCode"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Zip Code" />
+        android:hint="Zip Code (Required)"
+        android:inputType="text"
+        android:imeOptions="actionDone"
+        android:textColor="@color/green_A700"
+        />
+
 
     <EditText
         android:id="@+id/editTextAge"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textColor="@color/green_A700"
         android:hint="Age" />
+
+    <EditText
+        android:id="@+id/editTextHeight"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Height"
+        android:textColor="@color/green_A700"/>
+
+    <EditText
+        android:id="@+id/editTextWeight"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Weight"
+        android:textColor="@color/green_A700"/>
 
     <RadioGroup
         android:id="@+id/radioGroupGender"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp"
+        android:outlineAmbientShadowColor="@color/light_blue_A700">
 
         <RadioButton
             android:id="@+id/radioButtonMale"
@@ -54,6 +90,10 @@
         android:id="@+id/buttonStart"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Connect Device" />
+        android:text="Connect Device"
+        android:textColor="@color/white"
+        android:background="@drawable/rounded_btn_grey"/>
 
-</LinearLayout>
+    </LinearLayout>
+
+</ScrollView>

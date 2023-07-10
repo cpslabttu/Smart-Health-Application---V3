@@ -27,7 +27,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import com.example.cps_lab.BluefruitApplication;
+import com.example.cps_lab.CPSLabApplication;
 import com.example.cps_lab.R;
 import com.example.cps_lab.ble.BleUtils;
 import com.example.cps_lab.ble.central.BleManager;
@@ -132,7 +132,7 @@ public class MainActivity extends AppCompatActivity implements ScannerFragment.S
     protected void onResume() {
         super.onResume();
 
-        BluefruitApplication.activityResumed();
+        CPSLabApplication.activityResumed();
         checkPermissions();
 
         // Observe disconnections
@@ -149,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements ScannerFragment.S
     @Override
     protected void onPause() {
         super.onPause();
-        BluefruitApplication.activityPaused();
+        CPSLabApplication.activityPaused();
         unregisterGattReceiver();
 
         // Remove location dialog if present

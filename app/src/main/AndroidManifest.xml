@@ -22,7 +22,7 @@
 
 
     <application
-        android:name=".BluefruitApplication"
+        android:name=".CPSLabApplication"
         android:allowBackup="true"
         android:fullBackupContent="@xml/backup_scheme"
         android:icon="@mipmap/ic_launcher_ssc_health"

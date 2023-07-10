@@ -3,10 +3,10 @@ package com.example.cps_lab;
 import android.app.Application;
 
 
-public class BluefruitApplication extends Application {
+public class CPSLabApplication extends Application {
     // Log
     @SuppressWarnings("unused")
-    private final static String TAG = BluefruitApplication.class.getSimpleName();
+    private final static String TAG = CPSLabApplication.class.getSimpleName();
 
     // Data
     private static boolean mIsActivityVisible;
