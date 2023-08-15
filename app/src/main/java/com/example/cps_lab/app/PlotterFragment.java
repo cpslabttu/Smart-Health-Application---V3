@@ -768,7 +768,7 @@ public class PlotterFragment extends ConnectedPeripheralFragment implements Uart
 
                             if (predictClass[algoCounter] == 0) {
                                 try {
-                                    RnnLstmMulticlass model = RnnLstmMulticlass.newInstance(context);
+                                    CnnMulticlass model = CnnMulticlass.newInstance(context);
 
                                     // Creates inputs for reference.
                                     TensorBuffer inputFeature0 = TensorBuffer.createFixedSize(new int[]{1, 186}, DataType.FLOAT32);
@@ -798,7 +798,7 @@ public class PlotterFragment extends ConnectedPeripheralFragment implements Uart
                                     inputFeature0.loadBuffer(byteBuffer);
 
                                     // Runs model inference and gets result.
-                                    RnnLstmMulticlass.Outputs outputs = model.process(inputFeature0);
+                                    CnnMulticlass.Outputs outputs = model.process(inputFeature0);
                                     TensorBuffer outputFeature0 = outputs.getOutputFeature0AsTensorBuffer();
 
                                     // Get predicted class
